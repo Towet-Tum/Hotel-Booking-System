@@ -9,11 +9,8 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import F
 from .models import Hotel, RoomType, Room, Amenity, HotelAmenity, RoomRate, Inventory
-from users.permissions import IsAdminUserCustom
+
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.contrib.auth import get_user_model
-
-
 
 from .serializers import (
     HotelSerializer,
@@ -35,19 +32,19 @@ class HotelListCreateAPIView(generics.ListCreateAPIView):
         if cached_data:
             return Response(cached_data)
         response = super().get(request, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=300)  # Cache for 5 minutes
+        cache.set(cache_key, response.data, timeout=300)
         return response
     
-    def get_permissions(self):
+    """def get_permissions(self):
           if self.request.method == 'GET':
               return [AllowAny()]
-          return [IsAuthenticated(), IsAdminUserCustom()]
+          return [IsAuthenticated(), IsAdminUserCustom()]"""
    
 
 class HotelRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Hotel.objects.all()
     serializer_class = HotelSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         cache_key = f"hotel_{kwargs['pk']}"
@@ -55,69 +52,65 @@ class HotelRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         if cached_data:
             return Response(cached_data)
         response = super().get(request, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=300)  # Cache for 5 minutes
+        cache.set(cache_key, response.data, timeout=300) 
         return response
 
     def put(self, request, *args, **kwargs):
         cache_key = f"hotel_{kwargs['pk']}"
-        cache.delete(cache_key)  # Invalidate cache on update
+        cache.delete(cache_key)  
         return super().put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         cache_key = f"hotel_{kwargs['pk']}"
-        cache.delete(cache_key)  # Invalidate cache on delete
+        cache.delete(cache_key) 
         return super().delete(request, *args, **kwargs)
 
 
 class RoomTypeListCreateAPIView(generics.ListCreateAPIView):
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
    
 
 class RoomTypeRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
         cache_key = f"roomtype_{kwargs['pk']}"
         cached_data = cache.get(cache_key)
         if cached_data:
             return Response(cached_data)
         response = super().get(request, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=300)  # Cache for 5 minutes
+        cache.set(cache_key, response.data, timeout=300)
         return response
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAuthenticated(), IsAdminUserCustom()]
+   
     
     def put(self, request, *args, **kwargs):
         cache_key = f"roomtype_{kwargs['pk']}"
-        cache.delete(cache_key)  # Invalidate cache on update
+        cache.delete(cache_key)  
         return super().put(request, *args, **kwargs)
+    
     def delete(self, request, *args, **kwargs):
         cache_key = f"roomtype_{kwargs['pk']}"
-        cache.delete(cache_key)  # Invalidate cache on delete
+        cache.delete(cache_key)
         return super().delete(request, *args, **kwargs)
 
 
 class RoomListCreateAPIView(generics.ListCreateAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
         cache_key = "room_list"
         cached_data = cache.get(cache_key)
         if cached_data:
             return Response(cached_data)
         response = super().get(request, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=300)  # Cache for 5 minutes
+        cache.set(cache_key, response.data, timeout=300)
         return response
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAuthenticated(), IsAdminUserCustom()]
+    
+   
     
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -144,7 +137,8 @@ class RoomListCreateAPIView(generics.ListCreateAPIView):
 class RoomRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, *args, **kwargs):
         cache_key = f"room_{kwargs['pk']}"
         cached_data = cache.get(cache_key)
@@ -160,7 +154,8 @@ class RoomRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 class AmenityListCreateAPIView(generics.ListCreateAPIView):
     queryset = Amenity.objects.all()
     serializer_class = AmenitySerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, *args, **kwargs):
         cache_key = "amenity_list"
         cached_data = cache.get(cache_key)
@@ -174,7 +169,8 @@ class AmenityListCreateAPIView(generics.ListCreateAPIView):
 class AmenityRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Amenity.objects.all()
     serializer_class = AmenitySerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, *args, **kwargs):
         cache_key = f"amenity_{kwargs['pk']}"
         cached_data = cache.get(cache_key)
@@ -186,7 +182,7 @@ class AmenityRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 class HotelAmenityListCreateAPIView(generics.ListCreateAPIView):
     queryset = HotelAmenity.objects.all()
     serializer_class = HotelAmenitySerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):    
         cache_key = "hotelamenity_list"
         cached_data = cache.get(cache_key)
@@ -195,24 +191,19 @@ class HotelAmenityListCreateAPIView(generics.ListCreateAPIView):
         response = super().get(request, *args, **kwargs)
         cache.set(cache_key, response.data, timeout=300)
         return response
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAuthenticated(), IsAdminUserCustom()]
-        cache.set(cache_key, response.data, timeout=300)  # Cache for 5 minutes
-        return response
+   
 
 
 class HotelAmenityRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = HotelAmenity.objects.all()
     serializer_class = HotelAmenitySerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
 
 
 class RoomRateListCreateAPIView(generics.ListCreateAPIView):
     queryset = RoomRate.objects.all()
     serializer_class = RoomRateSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
         cache_key = "roomrate_list"
         cached_data = cache.get(cache_key)
@@ -221,17 +212,14 @@ class RoomRateListCreateAPIView(generics.ListCreateAPIView):
         response = super().get(request, *args, **kwargs)
         cache.set(cache_key, response.data, timeout=300)  # Cache for 5 minutes
         return response
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAuthenticated(), IsAdminUserCustom()]
+   
     
 
 
 class RoomRateRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RoomRate.objects.all()
     serializer_class = RoomRateSerializer
-    permission_classes = [IsAuthenticated(), IsAdminUserCustom()]
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
         cache_key = f"roomrate_{kwargs['pk']}"
         cached_data = cache.get(cache_key)
