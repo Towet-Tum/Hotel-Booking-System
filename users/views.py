@@ -9,6 +9,8 @@ from rest_framework.generics import (ListCreateAPIView,
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authentication import TokenAuthentication
+
 
 from . import serializers
 from .models import Profile
@@ -41,6 +43,7 @@ class UserLoginAPIView(GenericAPIView):
 
     permission_classes = (AllowAny,)
     serializer_class = serializers.UserLoginSerializer
+   
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
